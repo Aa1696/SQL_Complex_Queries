@@ -130,8 +130,47 @@ with t1 as
 		from t1)
 select name,team,total_gold_medals from t2 where rnk<=5;
 -- Fetch the top 5 athletes who have won the most medals (gold/silver/bronze).
+with t1 as
+            (select name, team, count(1) as total_medals
+            from olympics_history
+            where medal in ('Gold', 'Silver', 'Bronze')
+            group by name, team),
+        t2 as
+            (select *, dense_rank() over (order by total_medals desc)  rnk
+            from t1)
+    select name, team, total_medals
+    from t2
+    where t2.rnk <= 5;
 -- Fetch the top 5 most successful countries in olympics. Success is defined by no of medals won.
+select * from olympics_history;
+with t1 as
+		(select nr.region , count(1) as total_medals
+		from olympics_history oh
+	 	join olympics_history_noc_regions nr
+	 	on nr.noc=oh.noc
+		where medal in('Gold','Silver','Bronze')
+		group by nr.region order by total_medals desc
+		),
+	t2 as
+		(select * , dense_rank() over(order by total_medals desc) rnk
+		from t1)
+select * from t2
+where t2.rnk<=5;
+select * from olympics_history_noc_regions;
+
 -- List down total gold, silver and broze medals won by each country.
+with t1 as	
+	(select nr.region,medal ,count(1) as total_medals
+	from olympics_history oh 
+	join olympics_history_noc_regions nr
+	on  nr.noc=oh.noc
+	where medal !='NA'
+	group by medal,nr.region
+	order by nr.region,medal),
+	t2 as
+		(select *,dense_rank() over(order by total_medals desc)rnk
+		from t1)
+select * from t2 where t2.rnk<=15;
 -- List down total gold, silver and broze medals won by each country corresponding to each olympic games.
 -- Identify which country won the most gold, most silver and most bronze medals in each olympic games.
 -- Identify which country won the most gold, most silver, most bronze medals and the most medals in each olympic games.

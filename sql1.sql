@@ -1,79 +1,52 @@
--- CREATE TABLE STAFF
--- (
--- 	STAFF_ID VARCHAR(20) PRIMARY KEY
--- 	,STAFF_TYPE VARCHAR(20)
--- 	,SCHOOL_ID VARCHAR(30)
--- 	,FIRST_NAME VARCHAR(50)
--- 	,LAST_NAME VARCHAR(50)
--- 	,AGE INT
--- 	,DOB DATE
--- 	,GENDER VARCHAR(20) CHECK(GENDER IN ('M','F','MALE','FEMALE'))
--- 	,JOIN_DATE VARCHAR(40)
--- 	,ADDRESS_ID VARCHAR(100)
--- 	,CONSTRAINT ST_STAFF CHECK(AGE>20)
--- );
--- SELECT * FROM STAFF
--- INSERT INTO STAFF VALUES(1,'REGULAR',1,'SANTOSH','PATEL',25,CURRENT_DATE,'M',CURRENT_DATE,1);
--- INSERT INTO STAFF VALUES(2,'INTERN',2,'SONALI','KAUR',23,CURRENT_DATE,'FEMALE',CURRENT_DATE,2);
+select * from bonus;
+with t1 as 
+		(select department ,count(worker2.worker2_id) cnt from worker2 
+		group by department)
+		
+//4
+select * from t1 where t1.cnt <5;
 
-create table employees
-( 
-	id int,
-	name varchar(40),
-	salary int,
-	managerid int 
- 
-);
+//2
+select * from t1 order by t1.cnt desc;
 
-select * from employees;
-insert into employees values(1,'Joe',70000 ,3);
-insert into employees values(2,'Henry',80000 ,4);
-insert into employees values(3,'Sam',60000 ,null);
-insert into employees values(1,'Max',90000 ,null);
+//3
+select * from title t1 join  
+bonus b1 on b1.worker_ref_id=t1.worker_ref_id 
+and t1.worker_title='Manager';
 
-select * from employees;
+//5
+select distinct 
+worker2_id,first_name,last_name,
+salary,joining_date,bonus_amount
+from worker2 w
+left join bonus b1 on
+b1.bonus_amount=null;
+//6
+SELECT sum(Salary), department FROM 
+worker2 w GROUP BY w.department;
+//7
+select * from (
+	select *,dense_rank()
+	over(order by Salary desc) as rnk
+	from worker2
+)e
+where rnk<=3;
 
-select e1.name as "Employee" from employees e1
-right join employees manager on e1.managerid=manager.id and e1.salary>manager.salary
+//8
+with wt1 as 
+(select count(worker_title),worker_title from title
+ group by worker_title )
+select * from
+(select * ,dense_rank() over(order by wt1.count desc) rnk
+from wt1)w where w.rnk=1;
 
-create table person
-(
-	id int,
-	email varchar(100)
-);
- select * from person;
- insert into person values(1,'a@b.com' );
- insert into person values(2,'c@d.com' );
- insert into person values(3,'a@b.com ' );
- select * from person
- select email from person p
- group by email having count(1)>1
- select email from person p
- group by email having count(1)=1
- 
- create table customers
- (
-	 id int primary key,
-	 name varchar(30)
- );
- create table orders
- (
-	 id int primary key,
-	 customersid int 
- );
- 
- select * from customers;
- insert into customers values(1,'Joe');
- insert into customers values(2,'Henry');
- insert into customers values(3,'Sam');
- insert into customers values(4,'max');
- select * from customers
- select * from orders;
- insert into orders values(1,3);
- insert into orders values(2,1);
- select * from orders
- 
- select c.name as Customers  from customers c
- left join orders o on c.id=o.customersid
- where customersid is null
- 
+//9
+select distinct b1.worker_ref_id,b1.bonus_amount,b1.bonus_date from bonus b1 left join
+bonus b2 on b1.worker_ref_id=b2.worker_ref_id;
+//10
+select avg(bonus.bonus_amount) avg_bonus_of_employee
+from bonus;
+
+
+
+

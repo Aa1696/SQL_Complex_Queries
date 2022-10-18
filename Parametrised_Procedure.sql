@@ -5,12 +5,12 @@
 select * from products;
 select * from sales;
 create or replace procedure parameterised_procedure(p_product_name varchar,p_quantity int)
-language plgpsql
+language plpgsql
 as $$
 declare
 	v_product_code varchar(55);
 	v_price float(2);
-	v_cnt int
+	v_cnt int;
 begin
 	select count(1) into v_cnt
 	from products where
